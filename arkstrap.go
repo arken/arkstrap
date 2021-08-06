@@ -22,8 +22,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// Print Node ID
 	fmt.Printf("ID: %s\n", node.ID())
+
 	// Wait for a SIGINT or SIGTERM signal
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
