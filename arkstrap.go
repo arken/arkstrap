@@ -12,6 +12,13 @@ import (
 )
 
 func main() {
+	fmt.Println(` ____              _       _                   
+| __ )  ___   ___ | |_ ___| |_ _ __ __ _ _ __  
+|  _ \ / _ \ / _ \| __/ __| __| '__/ _' | '_ \ 
+| |_) | (_) | (_) | |_\__ \ |_| | | (_| | |_) |
+|____/ \___/ \___/ \__|___/\__|_|  \__,_| .__/ 
+					|_|`)
+	fmt.Printf("Version: %s\n", config.Global.General.Version)
 	node, err := ipfs.CreateNode(config.Global.Ipfs.Path, ipfs.NodeConfArgs{
 		Addr:           config.Global.Ipfs.Addr,
 		PeerID:         config.Global.Ipfs.PeerID,
