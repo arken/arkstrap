@@ -16,7 +16,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -ldflags "-s -w -X github.com/autamus/binoc/config.Version=$version" -o arkstrap .
+RUN go build -ldflags "-s -w -X github.com/arken/arkstrap/config.Version=$version" -o arkstrap .
 
 # Start again with minimal envoirnment.
 FROM ubuntu:latest
