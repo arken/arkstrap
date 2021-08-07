@@ -16,7 +16,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -ldflags "-s -w -X github.com/autamus/binoc/config.Version=$version" -o binoc .
+RUN go build -ldflags "-s -w -X github.com/autamus/binoc/config.Version=$version" -o arkstrap .
 
 # Start again with minimal envoirnment.
 FROM ubuntu:latest
@@ -24,7 +24,7 @@ FROM ubuntu:latest
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-COPY --from=builder /app/binoc /app/binoc
+COPY --from=builder /app/arkstrap /app/arkstrap
 
 # Command to run the executable
 ENTRYPOINT ["/app/arkstrap"]
