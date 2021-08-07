@@ -21,6 +21,9 @@ RUN go build -ldflags "-s -w -X github.com/arken/arkstrap/config.Version=$versio
 # Start again with minimal envoirnment.
 FROM ubuntu:latest
 
+RUN apt update && \
+    apt install -y ca-certificates
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
