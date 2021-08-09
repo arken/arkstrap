@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -28,13 +27,8 @@ type manifestConfig struct {
 }
 
 type config struct {
-	General  general
 	Ipfs     ipfs
 	Manifest manifest
-}
-
-type general struct {
-	Version string
 }
 
 type manifest struct {
@@ -49,16 +43,13 @@ type ipfs struct {
 	Addr       string
 }
 
-func init() {
+func Init() error {
 	user, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	Global = parseConfigEnv(
 		&config{
-			General: general{
-				Version: Version,
-			},
 			Manifest: manifest{
 				Url:  "https://github.com/arken/core-manifest.git",
 				Path: filepath.Join(user.HomeDir, ".arkstrap", "manifest"),
@@ -72,9 +63,7 @@ func init() {
 		},
 	)
 	Manifest, err = parseConfigManifest(Global.Manifest.Path, Global.Manifest.Url)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 func parseConfigEnv(input *config) (result config) {
@@ -82,20 +71,16 @@ func parseConfigEnv(input *config) (result config) {
 	for i := 0; i < numSubStructs; i++ {
 		iter := reflect.ValueOf(input).Elem().Field(i)
 		subStruct := strings.ToUpper(iter.Type().Name())
-
 		structType := iter.Type()
 		for j := 0; j < iter.NumField(); j++ {
 			fieldVal := iter.Field(j).String()
-			if fieldVal != "Version" {
-				fieldName := structType.Field(j).Name
-				for _, prefix := range []string{"ARKSTRAP"} {
-					evName := prefix + "_" + subStruct + "_" + strings.ToUpper(fieldName)
-					evVal, evExists := os.LookupEnv(evName)
-					if evExists && evVal != fieldVal {
-						iter.FieldByName(fieldName).SetString(evVal)
-					}
-				}
+			fieldName := structType.Field(j).Name
+			evName := "ARKSTRAP" + "_" + subStruct + "_" + strings.ToUpper(fieldName)
+			evVal, evExists := os.LookupEnv(evName)
+			if evExists && evVal != fieldVal {
+				iter.FieldByName(fieldName).SetString(evVal)
 			}
+
 		}
 	}
 	return *input

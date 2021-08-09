@@ -18,7 +18,17 @@ func main() {
 | |_) | (_) | (_) | |_\__ \ |_| | | (_| | |_) |
 |____/ \___/ \___/ \__|___/\__|_|  \__,_| .__/ 
 					|_|`)
-	fmt.Printf("Version: %s\n", config.Global.General.Version)
+
+	// Initialize Configuration
+	err := config.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Print Application Version
+	fmt.Printf("Version: %s\n", config.Version)
+
+	// Create Embedded IPFS Node
 	node, err := ipfs.CreateNode(config.Global.Ipfs.Path, ipfs.NodeConfArgs{
 		Addr:           config.Global.Ipfs.Addr,
 		PeerID:         config.Global.Ipfs.PeerID,
