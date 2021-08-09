@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -49,8 +50,10 @@ type ipfs struct {
 }
 
 func init() {
-	var err error
-	home, _ := os.UserHomeDir()
+	user, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
 	Global = parseConfigEnv(
 		&config{
 			General: general{
@@ -58,10 +61,10 @@ func init() {
 			},
 			Manifest: manifest{
 				Url:  "https://github.com/arken/core-manifest.git",
-				Path: filepath.Join(home, ".config", "arkstrap", "manifest"),
+				Path: filepath.Join(user.HomeDir, ".arkstrap", "manifest"),
 			},
 			Ipfs: ipfs{
-				Path:       filepath.Join(home, ".config", "arkstrap", "ipfs"),
+				Path:       filepath.Join(user.HomeDir, ".arkstrap", "ipfs"),
 				PeerID:     "",
 				PrivateKey: "",
 				Addr:       "",
