@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/go-git/go-git/v5"
-	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -18,37 +18,27 @@ var (
 )
 
 type manifestConfig struct {
-	Name           string   `yaml:"name"`
-	Replications   int      `yaml:"replications"`
-	ClusterKey     string   `yaml:"cluster_key"`
-	StatsNode      string   `yaml:"stats_node"`
-	BootstrapPeers []string `yaml:"bootstrap_peers"`
-	Mirrors        []string `yaml:"mirrors"`
+	Name           string   `toml:"name"`
+	Replications   int      `toml:"replications"`
+	ClusterKey     string   `toml:"cluster_key"`
+	StatsNode      string   `toml:"stats_node"`
+	BootstrapPeers []string `toml:"bootstrap_peers"`
+	Mirrors        []string `toml:"mirrors"`
 }
 
 type config struct {
 	General  general
-	Database database
 	Ipfs     ipfs
-	manifest manifest
-	Web      web
+	Manifest manifest
 }
 
 type general struct {
 	Version string
 }
 
-type database struct {
-	Path string
-}
-
 type manifest struct {
 	Url  string
 	Path string
-}
-
-type web struct {
-	Addr string
 }
 
 type ipfs struct {
@@ -66,15 +56,9 @@ func init() {
 			General: general{
 				Version: Version,
 			},
-			Database: database{
-				Path: "arkstat.db",
-			},
-			manifest: manifest{
+			Manifest: manifest{
 				Url:  "https://github.com/arken/core-manifest.git",
 				Path: filepath.Join(home, ".config", "arkstrap", "manifest"),
-			},
-			Web: web{
-				Addr: ":8080",
 			},
 			Ipfs: ipfs{
 				Path:       filepath.Join(home, ".config", "arkstrap", "ipfs"),
@@ -84,7 +68,7 @@ func init() {
 			},
 		},
 	)
-	Manifest, err = parseConfigManifest(Global.manifest.Path, Global.manifest.Url)
+	Manifest, err = parseConfigManifest(Global.Manifest.Path, Global.Manifest.Url)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -132,10 +116,6 @@ func parseConfigManifest(path, url string) (result manifestConfig, err error) {
 	if err != nil && err.Error() != "already up-to-date" {
 		return result, err
 	}
-	bytes, err := os.ReadFile(filepath.Join(Global.manifest.Path, "config.yml"))
-	if os.IsNotExist(err) {
-		return result, err
-	}
-	err = yaml.Unmarshal(bytes, &result)
+	_, err = toml.DecodeFile(filepath.Join(Global.Manifest.Path, "config.toml"), &result)
 	return result, err
 }
